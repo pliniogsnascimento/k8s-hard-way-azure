@@ -1,13 +1,47 @@
-#containers #kubernetes
+# Kubernetes The Hard Way Azure
 
-> [!note] 
 > Things to be aware of: 
 > - Always look for compatibility matrix between cluster and container runtimes versions; 
 > - Try to install packages whenever is possible; 
 > - Be aware of security groups.
 
 ### Objective
-This page's objective is to document my first try deploying a kubernetes cluster from scratch(the famous hard way of doing it).
+This repo's objective is to provision an environment and document my first try deploying a kubernetes cluster from scratch(the famous hard way of doing it). Resources listed here are not intended to be a production-ready cluster, but to be a learning environment instead.
+
+It provision:
+- 3 nodes with:
+  - Ubuntu 20.04 LTS;
+  - Azure vm with `Standard_D2_v2` image.
+- A minimal network setup with:
+  - 1 vnet;
+  - 1 subnet;
+  - 3 network interfaces(nic) - 1 per node;
+  - 1 network security group(nsg) with free access `Inbound Rules` for control-plane, ssh and nodePort services.
+
+### Pre requisites
+
+- Required terraform `>=0.13`;
+- A logged azcli.
+
+### Install
+
+```bash
+# Init providers
+terraform init
+
+#
+terraform plan -out out.plan
+terraform apply "out.plan"
+```
+
+### Cleanup
+
+```bash
+# Init providers
+terraform destroy --auto-approve
+```
+
+# Installing k8s the hard way
 
 ### Pre requisites
 - 2Gb of RAM
@@ -41,6 +75,8 @@ Required ports open on nodes:
 | TCP | Inbound | 30000-32767 | NodePort Services | All |
 
 #### Turn swap off
+> Start running commands on all 3 nodes.
+
 `swapoff -a`
 
 #### Enable modules
@@ -115,7 +151,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
 ### Bootstrap cluster
-> [!note]
+
 > From here, run commands only on control-plane node.
 
 ```bash
