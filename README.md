@@ -47,10 +47,10 @@ terraform destroy --auto-approve
 ```
 
 # Installing k8s the hard way
-> Things to be aware of: 
-> - Always look for compatibility matrix between cluster and container runtimes versions; 
-> - Try to install packages whenever is possible; 
-> - Be aware of security groups.
+Things to be aware of: 
+- Always look for compatibility matrix between cluster and container runtimes versions; 
+- Try to install packages whenever is possible; 
+- Be aware of security groups.
 
 ### Pre requisites
 - 2Gb of RAM
