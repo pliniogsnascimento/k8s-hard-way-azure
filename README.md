@@ -29,15 +29,23 @@ It provisions:
 # Init providers
 terraform init
 
-#
+# Applying infrastructure
 terraform plan -out out.plan
 terraform apply "out.plan"
+
+# Getting image certificate
+terraform output -raw tls_cert > azurekeypair.pem
+sudo chmod 400 azurekeypair.pem
+
+# Accessing nodes
+terraform output -json public_ip_addresses
+ssh -i azurekeypair.pem adminuser@<node-public-ip>
 ```
 
 ### Cleanup
 
 ```bash
-# Init providers
+# Destroy resources
 terraform destroy --auto-approve
 ```
 
