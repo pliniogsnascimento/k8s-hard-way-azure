@@ -8,7 +8,7 @@
 ### Objective
 This repo's objective is to provision an environment and document my first try deploying a kubernetes cluster from scratch(the famous hard way of doing it). Resources listed here are not intended to be a production-ready cluster, but to be a learning environment instead.
 
-It provision:
+It provisions:
 - 3 nodes with:
   - Ubuntu 20.04 LTS;
   - Azure vm with `Standard_D2_v2` image.
