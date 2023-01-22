@@ -11,7 +11,7 @@ This repo's objective is to provision an environment and document my first try d
 It provisions:
 - 3 nodes with:
   - Ubuntu 20.04 LTS;
-  - Azure vm with `Standard_D2_v2` image.
+  - Azure vm with `Standard_D2_v2` image - 2 vCPUs and 7GiB of RAM.
 - A minimal network setup with:
   - 1 vnet;
   - 1 subnet;
