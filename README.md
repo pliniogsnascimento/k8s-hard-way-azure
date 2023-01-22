@@ -15,7 +15,7 @@ It provisions:
 - A minimal network setup with:
   - 1 vnet;
   - 1 subnet;
-  - 3 network interfaces(nic) - 1 per node;
+  - 3 network interfaces(nic) and public ips - 1 per node;
   - 1 network security group(nsg) with free access `Inbound Rules` for control-plane, ssh and nodePort services.
 
 ### Pre requisites
