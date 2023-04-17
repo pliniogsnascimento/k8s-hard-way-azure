@@ -5,3 +5,4 @@ private_ssh_key
 
 .vscode
 .DS_Store
+*.pem

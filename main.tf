@@ -121,6 +121,71 @@ resource "azurerm_linux_virtual_machine" "test" {
     public_key = tls_private_key.example_ssh.public_key_openssh
   }
 
+
+  user_data = base64encode(<<EOC
+#!/bin/bash
+# Turn swap off
+swapoff -a
+
+# Enable overlay and br_netfilter modules
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+sudo tee /etc/sysctl.d/kubernetes.conf <<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+sudo tee /etc/sysctl.d/99-kubernetes-cri.conf <<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+# Setup required sysctl params, these persist across reboots.
+sudo tee /etc/modules-load.d/containerd.conf <<EOF
+overlay
+br_netfilter
+EOF
+
+# Apply sysctl params without reboot
+# https://access.redhat.com/documentation/pt-br/red_hat_enterprise_linux/8/html/managing_monitoring_and_updating_the_kernel/using-configuration-files-in-etc-sysctl-d-to-adjust-kernel-parameters_setting-kernel-parameters-at-runtime
+sudo sysctl --system
+
+# Configure apt repository
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+# Install
+sudo apt update -y
+sudo apt install -y containerd.io=1.6.12-1
+
+# Configure containerd
+sudo mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml
+
+# Restart containerd
+sudo systemctl restart containerd
+sudo systemctl enable containerd
+
+# Update index
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+# Add repo gpg key
+sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+
+# Add kubernetes apt repo
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+
+# Config crictl socket config
+sudo tee /etc/crictl.yaml <<EOF
+runtime-endpoint: unix:///var/run/dockershim.sock
+EOF
+EOC
+  )
+
   tags = {
     environment = "staging"
   }
