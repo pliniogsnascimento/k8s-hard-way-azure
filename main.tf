@@ -101,13 +101,13 @@ resource "azurerm_linux_virtual_machine" "test" {
   location              = azurerm_resource_group.k8s_hard_way.location
   resource_group_name   = azurerm_resource_group.k8s_hard_way.name
   network_interface_ids = [element(azurerm_network_interface.test.*.id, count.index)]
-  size                  = "Standard_D2_v2"
+  size                  = "Standard_DS2_v2"
   admin_username        = "adminuser"
 
   source_image_reference {
     publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts"
+    offer     = "ubuntu-24_04-lts"
+    sku       = "server"
     version   = "latest"
   }
 
