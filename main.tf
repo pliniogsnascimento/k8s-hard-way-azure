@@ -150,39 +150,43 @@ br_netfilter
 EOF
 
 # Apply sysctl params without reboot
-# https://access.redhat.com/documentation/pt-br/red_hat_enterprise_linux/8/html/managing_monitoring_and_updating_the_kernel/using-configuration-files-in-etc-sysctl-d-to-adjust-kernel-parameters_setting-kernel-parameters-at-runtime
 sudo sysctl --system
 
-# Configure apt repository
+# Configure containerd.io apt repository
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 # Install
 sudo apt update -y
-sudo apt install -y containerd.io=1.6.12-1
+sudo apt install -y containerd.io
 
 # Configure containerd
 sudo mkdir -p /etc/containerd
 containerd config default | sudo tee /etc/containerd/config.toml
 
+# Configure containerd to use systemd as cgroup driver
+sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+
 # Restart containerd
 sudo systemctl restart containerd
-sudo systemctl enable containerd
+sudo systemctl daemon-reload
+sudo systemctl enable --now containerd
 
 # Update index
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl
 
 # Add repo gpg key
-sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 # Add kubernetes apt repo
-echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-# Config crictl socket config
-sudo tee /etc/crictl.yaml <<EOF
-runtime-endpoint: unix:///var/run/dockershim.sock
-EOF
+# Install kubeadm kubectl and kubelet
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+
 EOC
   )
 

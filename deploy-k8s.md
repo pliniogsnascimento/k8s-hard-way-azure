@@ -41,23 +41,6 @@ Required ports open on nodes:
 
 ### Installing Container Runtime(CRI)
 ```bash
-# Install containerd as https://github.com/containerd/containerd/blob/main/docs/getting-started.md explains
-wget https://github.com/containerd/containerd/releases/download/v2.0.1/containerd-2.0.1-linux-amd64.tar.gz
-tar Cxzvf /usr/local containerd-2.0.1-linux-amd64.tar.gz
-mkdir -p /usr/local/lib/systemd/system/
-curl https://raw.githubusercontent.com/containerd/containerd/main/containerd.service | tee /usr/local/lib/systemd/system/containerd.service
-systemctl daemon-reload
-systemctl enable --now containerd
-
-# Install runc
-wget https://github.com/opencontainers/runc/releases/download/v1.2.3/runc.amd64
-install -m 775 runc.amd64 /usr/local/sbin/runc
-
-# Install CNI Plugins(Optional)
-wget https://github.com/containernetworking/plugins/releases/download/v1.6.1/cni-plugins-linux-amd64-v1.6.1.tgz
-mkdir -p /opt/cni/bin
-tar Cxzvf /opt/cni/bin/ cni-plugins-linux-amd64-v1.6.1.tgz
-```
 
 ### Installing kubeadm, kubectl, kubelet
 ```bash
@@ -76,7 +59,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 ```bash
 # Init control-plane
-kubeadm init --pod-network-cidr="10.244.0.0/16" --upload-certs --kubernetes-version="<version>" --control-plane-endpoint="20.29.216.161" --cri-socket="unix:///run/containerd/containerd.sock"
+kubeadm init --pod-network-cidr="10.244.0.0/16" --upload-certs --kubernetes-version="<version>" --control-plane-endpoint="<instance-ip>" --cri-socket="unix:///run/containerd/containerd.sock"
 ```
 
 After control-plane node started, join nodes as the `kubeadm` suggests with `kubeadm join` command.
